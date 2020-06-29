@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Printer.Commands;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace Printer.ViewModel
 {
@@ -175,5 +177,101 @@ namespace Printer.ViewModel
                 printFinishedInfo = e.Error.Message;
             }
         }
+
+        #region Commands
+        /// <summary>
+        /// Print command
+        /// </summary>
+        private ICommand print;
+        public ICommand Print
+        {
+            get
+            {
+                if(print==null)
+                {
+                    print = new RelayCommand(param => PrintExecute(), param => CanPrintExecute());
+                }
+                return print;
+            }
+        }
+
+        /// <summary>
+        /// Print execution method
+        /// </summary>
+        private void PrintExecute()
+        {
+            //if background worker is not busy it will start asynchron execution
+            if(!backgroundWorker.IsBusy)
+            {
+                backgroundWorker.RunWorkerAsync();
+                _isRunning = true;
+            }
+            else
+            {
+                //if its busy it will show message that printing is in progress
+                WarningInfo = "Printing in progress... Please wait.";
+            }
+        }
+
+        /// <summary>
+        /// Method for confirming if printing is possible or not
+        /// </summary>
+        /// <returns>true or false</returns>
+        private bool CanPrintExecute()
+        {
+            //if there is no text or copies of files print is not possible
+            if (TxtFile == null || FileCopy == null || int.Parse(FileCopy) == 0)
+            {
+                return false;
+            }
+            else
+                return true;
+        }
+
+        /// <summary>
+        /// Cancel command
+        /// </summary>
+        private ICommand cancel;
+        public ICommand Cancel
+        {
+            get
+            {
+                if (cancel == null)
+                {
+                    cancel = new RelayCommand(param => CancelExecute(), param => CanCancelExecute());
+                }
+                return cancel;
+            }
+        }
+
+        /// <summary>
+        /// Method for canceling printing 
+        /// </summary>
+        private void CancelExecute()
+        {
+            //if background worker is busy it possible to cancel print job
+            if(backgroundWorker.IsBusy)
+            {
+                backgroundWorker.CancelAsync();
+                _isRunning = false;
+            }           
+
+        }
+
+        /// <summary>
+        /// Method for decision if printing cancellation is possible or not
+        /// </summary>
+        /// <returns>true or false</returns>
+        private bool CanCancelExecute()
+        {
+            //if printing is in progress cancel is possible
+            if(_isRunning==true)
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+        #endregion
     }
 }
