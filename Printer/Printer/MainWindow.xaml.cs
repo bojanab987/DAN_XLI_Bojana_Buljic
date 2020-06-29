@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Printer.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,6 +25,18 @@ namespace Printer
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = new MainWindowViewModel(this);
+        }
+
+        /// <summary>
+        /// User input validation for numbers
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NumberInputValidation(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
         }
     }
 }
