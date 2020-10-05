@@ -1,1 +1,3 @@
-# DAN_XLI_Bojana_Buljic
+WPF application.
+Printer simulation.
+Use of BackgroundWorker
